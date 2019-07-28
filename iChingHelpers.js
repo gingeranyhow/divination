@@ -1,5 +1,7 @@
 const fs = require('fs');
 const path = require('path');
+
+var iChing = require('i-ching');
 var stream = require('stream');
 
 
@@ -16,47 +18,35 @@ function hex2bin(hex){
 
 function readBytes(filePath) {
   var myStream = fs.createReadStream(filePath, {
-    // objectMode: true,
     highWaterMark: 6,
   });
 
-  //.setEncoding('hex');
   console.log("Stream state before setup", myStream.readableFlowing);
 
   myStream.on('data', (chunk) => {
-    console.log(`Received ${chunk.length} bytes of data.`);
-    var result = "";
+    if (chunk.length == 6) {
+      console.log(`Received ${chunk.length} bytes of data.`);
+    } else {
+      console.log(`WRONG LENGTH: ${chunk.length} bytes of data... skipping this chunk`);
+      return;
+    }
+    var binaryChunk = "";
+    var hexagrams = [];
 
     chunk.forEach(str => {
-      result += hex2bin(str);
+      binaryChunk += hex2bin(str);
     });
 
-    console.log(chunk);
-    console.log(result);
+    // binaryChunk is a string containing 24 bits
+    console.log(binaryChunk);
+    console.log(hexagrams);
   });
 
   myStream.on('close', (chunk) => {
     console.log("Stream closed!");
   });
 
-
-
-  console.log("Stream state after setup", myStream.readableFlowing);
-  // myStream.read();
-  console.log("Stream state after read", myStream.readableFlowing);
-
   var output = "nooooo";
-  console.log("Read once");
-  var chonk = 0;
-  
-  // while (myStream.readable) {
-  //   myStream.read();
-  //   // console.log(chonk)
-  //   // console.log(chunk);
-  //   // chonk ++;
-  // }
-  
-  // console.log("outer", output);
   return output;
 }
 
