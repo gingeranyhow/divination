@@ -4,8 +4,6 @@ const path = require('path');
 var iChing = require('i-ching');
 var stream = require('stream');
 
-
-
 // 2 Hexadecimal digits = 1 byte
 // 1 byte = 8 bits
 // 3 bytes = 24 bits
@@ -16,29 +14,35 @@ function hex2bin(hex){
   return ("00000000" + (parseInt(hex, 16)).toString(2)).substr(-8);
 }
 
+var byteWidth = 18000;
+
 function readBytes(filePath) {
   var myStream = fs.createReadStream(filePath, {
-    highWaterMark: 6,
+    objectMode: false,
+    highWaterMark: byteWidth,
   });
 
-  console.log("Stream state before setup", myStream.readableFlowing);
-
   myStream.on('data', (chunk) => {
-    if (chunk.length == 6) {
-      console.log(`Received ${chunk.length} bytes of data.`);
-    } else {
-      console.log(`WRONG LENGTH: ${chunk.length} bytes of data... skipping this chunk`);
-      return;
-    }
+    // if (chunk.byteLength == byteWidth) {
+    //   console.log(`Received ${chunk.byteLength} bytes of data.`);
+    // } else {
+    //   console.log(`WRONG LENGTH: Wanted ${byteWidth}, got ${chunk.length} bytes of data... skipping this chunk`);
+    //   return;
+    // }
+
+    // binaryChunk is a string containing 24 bits
     var binaryChunk = "";
     var hexagrams = [];
 
-    chunk.forEach(str => {
-      binaryChunk += hex2bin(str);
-    });
+    for (const b of chunk) {
+      binaryChunk += hex2bin(b);
+    }    
 
-    // binaryChunk is a string containing 24 bits
-    console.log(binaryChunk);
+    sixBitArray = getArrayOf6Bits(binaryChunk);
+
+    hexagrams = sixBitArray.map(str => {
+      return sixBitToSingleIching(str);
+    });
     console.log(hexagrams);
   });
 
@@ -49,6 +53,23 @@ function readBytes(filePath) {
   var output = "nooooo";
   return output;
 }
+
+function sixBitToSingleIching(bitsString){
+  var hex = hexagrams[bitsString];
+  return hex
+    ? hex.hexagram
+    : 'Cannot find hexagram for ' + bitsString;
+}
+
+function getArrayOf6Bits(bits) {
+  let sixBits = [];
+  for (i = 0; i < bits.length; i+=6) {
+    let single = bits.slice(i, i+6);
+    sixBits.push(single)
+  }
+  return sixBits;
+}
+
 
 var hexagrams = {
   "111111": {"definition": "01. Force (乾 qián); The Creative; Possessing Creative Power & Skill",
@@ -309,7 +330,7 @@ var hexagrams = {
               "description": "Fire ascends above the Water: The Superior Person examines the nature of things and keeps each in its proper place. Too anxious the young fox gets her tail wet, just as she completes her crossing. To attain success, be like the woman and not like the fox."}
   };
 
-// readBytes("./public/uploads/Text File.txt");
+readBytes("./public/uploads/Text File.txt");
 // readBytes("iChingHelpers.js");
 // /Users/patrick/Desktop/CapraCarYT_QuartzVapor_Instagram.mp4
-readBytes("/Users/patrick/Desktop/CapraCarYT_QuartzVapor_Instagram.mp4");
+// readBytes("/Users/patrick/Desktop/CapraCarYT_QuartzVapor_Instagram.mp4");
