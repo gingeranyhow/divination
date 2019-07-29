@@ -2,7 +2,7 @@
   "//1": "describes your app and its dependencies",
   "//2": "https://docs.npmjs.com/files/package.json",
   "//3": "updating this file will download and update your packages",
-  "name": "hello-express",
+  "name": "divination",
   "version": "0.0.1",
   "description": "A simple Node app built on Express, instantly up and running.",
   "main": "server.js",
@@ -10,11 +10,11 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "busboy": "^0.3.1",
     "express": "^4.16.4",
-    "i-ching": "^0.3.5",
-    "nunjucks": "^3.2.0",
     "express-fileupload": "^1.1.4",
-    "busboy": "^0.3.1"
+    "i-ching": "^0.3.5",
+    "nunjucks": "^3.2.0"
   },
   "engines": {
     "node": "8.x"
